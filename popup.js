@@ -68,43 +68,15 @@ function renderStatus(statusText) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  getCurrentTabUrl(function(url) {
-    var CODEFORCES=0;
-    var FACEBOOK=0;
-    var CURRENTTIME=new Date().getTime() / 1000;
-    if(url.indexOf("codeforces") !== -1)
-    {
-      CODEFORCES++;
-    }
-    else if(url.indexOf("facebook") !== -1)
-    {
-      FACEBOOK++;
-    }
-
-    chrome.storage.local.get(["codeforces","facebook","time"], function(items){ 
-    // chrome.storage.local.get(["codeforces","facebook"], function(items){ 
-        if(!items["codeforces"])
-          items["codeforces"]=0;
-        if(!items["facebook"])
-          items["facebook"]=0;
-        if(!items["time"])
-          items["time"]=CURRENTTIME;
-        if(CURRENTTIME-items["time"]>3600)
-        {
-          //Reset Counters
-          items["codeforces"]=0;
-          items["facebook"]=0;
-          items["time"]=CURRENTTIME;
-        }
-
-        CODEFORCES=CODEFORCES+items["codeforces"];
-        FACEBOOK=FACEBOOK+items["facebook"];
-        renderStatus(CODEFORCES +'/'+ FACEBOOK); 
-        
-        chrome.storage.local.set({ "facebook": FACEBOOK ,"codeforces": CODEFORCES , "time" : CURRENTTIME}, function(){
-        // chrome.storage.local.set({ "facebook": FACEBOOK ,"codeforces": CODEFORCES}, function(){
-        });
-    });
-    
-  });
+  chrome.storage.local.get(["codeforces","facebook","time"], function(items){ 
+      if(!items["codeforces"])
+        items["codeforces"]=0;
+      if(!items["facebook"])
+        items["facebook"]=0;
+      if(!items["time"])
+        items["time"]=CURRENTTIME;
+      CODEFORCES=items["codeforces"];
+      FACEBOOK=items["facebook"];
+      renderStatus(CODEFORCES +'/'+ FACEBOOK); 
+  }); 
 });
