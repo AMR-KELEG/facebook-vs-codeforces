@@ -1,43 +1,55 @@
 function updateCounters(tabId, changeInfo, tab) {
-    var url = tab.url;
-    var CODEFORCES=0;
-    var FACEBOOK=0;
-    var CURRENTTIME=new Date().getTime();
-    if(url.indexOf("codeforces") !== -1)
+    // Tab is still loading
+    if (changeInfo.status!=='complete')
     {
-      CODEFORCES++;
-    }
-    else if(url.indexOf("facebook") !== -1)
-    {
-      FACEBOOK++;
+      console.log(changeInfo);
+      return ;
     }
 
-    chrome.storage.local.get(["codeforces","facebook","time"], function(items){ 
-        if(!items["codeforces"])
-          items["codeforces"]=0;
-        if(!items["facebook"])
-          items["facebook"]=0;
-        if(!items["time"])
-          items["time"]=CURRENTTIME;
-        if(CURRENTTIME-items["time"]>3600000)
+    // Tab has been loaded completely 
+    console.log(changeInfo.status);
+    console.log('Tab id is: '+tabId);
+    var url = tab.url;
+    var tabIsCodeforces = (url.indexOf('codeforces') !== -1)? 1: 0;
+    var tabIsFacebook = (url.indexOf('facebook') !== -1)? 1: 0;
+    var currentPage;
+    // Irrelevant website
+    if(tabIsCodeforces===0 && tabIsFacebook===0)
+    {
+      chrome.storage.local.set({'lastImportant': 'Irrelevant' , 'lastTabId': tabId}, function(){
+        });
+      return ;
+    }
+    else if(tabIsCodeforces)
+    {
+      currentPage='codeforces';
+    }
+    else
+    {
+      currentPage='facebook'; 
+    }
+
+    // Get counters' values from chrome's storage
+    chrome.storage.local.get(['codeforces','facebook','lastTabId','lastImportant'], function(items){ 
+        if(!items['codeforces'])
+          items['codeforces']=0;
+        if(!items['facebook'])
+          items['facebook']=0;
+        if(!items['lastTabId'])
+          items['lastTabId']=-1;
+        if(!items['lastImportant'])
+          items['lastImportant']='Irrelevant';
+        if(items['lastTabId']===tabId && items['lastImportant']===currentPage)
         {
-          //Reset Counters
-          items["codeforces"]=0;
-          items["facebook"]=0;
-          items["time"]=CURRENTTIME;
+          return ;
         }
-        //Needs a better check here
-        else if(CURRENTTIME-items["time"]<=50)
-        {
-          CODEFORCES=0;
-          FACEBOOK=0;
-        }
-        CODEFORCES=CODEFORCES+items["codeforces"];
-        FACEBOOK=FACEBOOK+items["facebook"];
-        chrome.storage.local.set({ "facebook": FACEBOOK ,"codeforces": CODEFORCES , "time" : CURRENTTIME}, function(){
+
+        tabIsCodeforces=tabIsCodeforces+items['codeforces'];
+        tabIsFacebook=tabIsFacebook+items['facebook'];
+        chrome.storage.local.set({ 'facebook': tabIsFacebook ,'codeforces': tabIsCodeforces , 
+                                    'lastTabId': tabId, 'lastImportant':currentPage}, function(){
         });
     });
-    
 }
 
 
