@@ -68,13 +68,8 @@ function renderStatus(statusText) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  chrome.storage.local.get(["codeforces","facebook"], function(items){ 
-      if(!items["codeforces"])
-        items["codeforces"]=0;
-      if(!items["facebook"])
-        items["facebook"]=0;
-      CODEFORCES=items["codeforces"];
-      FACEBOOK=items["facebook"];
-      renderStatus(CODEFORCES +'/'+ FACEBOOK); 
+  chrome.storage.local.get(['noOfContextSwitches'], function(items){ 
+      noOfContextSwitches = (!items['noOfContextSwitches'])? 0: items['noOfContextSwitches'];
+      renderStatus(noOfContextSwitches); 
   }); 
 });
